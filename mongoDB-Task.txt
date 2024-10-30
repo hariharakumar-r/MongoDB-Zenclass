@@ -1,0 +1,87 @@
+1.Find all the topics and tasks which are taught in the month of October
+
+Query:
+
+// Fetch topics taught in October
+const topicsInOctober = db.topics.find({
+  date_covered: {
+    $gte: new Date("2024-10-01"),
+    $lt: new Date("2024-11-01")
+  }
+}).toArray();
+
+// Fetch tasks assigned in October
+const tasksInOctober = db.tasks.find({
+  due_date: {
+    $gte: new Date("2024-10-01"),
+    $lt: new Date("2024-11-01")
+  }
+}).toArray();
+
+console.log("Topics taught in October:", topicsInOctober);
+console.log("Tasks assigned in October:", tasksInOctober);
+
+
+2.Find all the company drives which appeared between 15 oct-2024 and 31-oct-2024.
+
+Query: 
+
+db.company_drives.find({
+  date: {
+    $gte: new Date("2020-10-15"),  // Start date: October 15, 2020
+    $lt: new Date("2020-11-01")    // End date: October 31, 2020 (exclusive)
+  }
+}).pretty();
+
+
+3.Find all the company drives and students who are appeared for the placement.
+
+Query:
+
+db.company_drives.aggregate([
+  {
+    $lookup: {
+      from: "students",             // Collection with student data
+      localField: "drive_id",       // Field from company_drives
+      foreignField: "drive_id",     // Field from students collection
+      as: "students_attended"       // Name of the array that will store joined students
+    }
+  },
+  {
+    $project: {                     // Optionally select only the fields you need
+      drive_id: 1,
+      company_name: 1,
+      date: 1,
+      students_attended: 1          // Include the array of students who attended
+    }
+  }
+]).pretty();
+
+
+4.Find the number of problems solved by the user in codekata
+
+Query:
+
+db.codekata.findOne(
+  { user_id: "U001" },    // Replace "U001" with the user's ID you want to query
+  { total_problems_solved: 1, _id: 0 }  // Only return the problems_solved field
+);
+
+
+5.Find all the mentors with who has the mentee's count more than 15
+
+Query:
+
+db.mentors.find({
+  mentee_count: { $gt: 15 }   // Find mentors with more than 15 mentees
+}).pretty();
+
+
+6.Find the number of users who are absent and task is not submitted  between 15 oct-2020 and 31-oct-2020
+
+Query:
+
+
+
+
+
