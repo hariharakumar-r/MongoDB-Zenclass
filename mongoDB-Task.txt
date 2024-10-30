@@ -81,6 +81,45 @@ db.mentors.find({
 
 Query:
 
+db.attendance.aggregate([
+  {
+    $match: {
+      status: "absent",  // Match users who were absent
+      date: {
+        $gte: new Date("2024-10-15"),  // Between 15 Oct 2024
+        $lt: new Date("2024-11-01")    // And 31 Oct 2024 (exclusive)
+      }
+    }
+  },
+  {
+    $lookup: {
+      from: "tasks",                    // Join with tasks collection
+      localField: "user_id",            // Field from attendance
+      foreignField: "user_id",          // Field from tasks
+      as: "tasks_info"                  // Name the result as tasks_info
+    }
+  },
+  {
+    $unwind: "$tasks_info"              // Flatten the tasks_info array
+  },
+  {
+    $match: {                           // Match tasks not submitted within the date range
+      "tasks_info.submitted": false,
+      "tasks_info.due_date": {
+        $gte: new Date("2024-10-15"),
+        $lt: new Date("2024-11-01")
+      }
+    }
+  },
+  {
+    $group: {                           // Group by user_id to avoid counting duplicates
+      _id: "$user_id"
+    }
+  },
+  {
+    $count: "absent_and_no_task_submitted"  // Count the number of unique users
+  }
+]);
 
 
 
